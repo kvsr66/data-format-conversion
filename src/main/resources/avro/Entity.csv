@@ -1,0 +1,4 @@
+entity_id,entity-name,alias,description,primary_key,object_type,object_name,package_name,
+1,TransactionRecord,null,null,PK,com.data.util.avro,TransactionRecord,com.data.util.avro.TransactionRecord,
+2,TransactionData,null,null,PK,com.data.util.avro,TransactionData,com.data.util.avro.TransactionData,
+2,TransactionHeaders,null,null,PK,com.data.util.avro,TransactionHeaders,com.data.util.avro.TransactionHeaders,
