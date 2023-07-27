@@ -101,6 +101,7 @@ public class AvroToCsvConverterNew_1 {
         StringBuilder fieldDataBuilder = new StringBuilder();
         fieldDataBuilder.append(entityId).append(","); // entity_id
         fieldDataBuilder.append(fieldId).append(","); //"field_no,");
+        fieldDataBuilder.append(entityId).append(".").append(fieldId).append(","); //"field_id,");
         fieldDataBuilder.append(field.name()).append(","); //field_name
         fieldDataBuilder.append(field.getObjectProps().containsValue("null") ? "Y" : "N").append(","); //is_nullable
         fieldDataBuilder.append("array".equalsIgnoreCase(field.schema().getType().getName()) ? "Y" : "N").append(","); //("is_repeated,");
@@ -138,6 +139,7 @@ public class AvroToCsvConverterNew_1 {
 
         fieldsHeader.append("entity_id,");
         fieldsHeader.append("field_no,");
+        fieldsHeader.append("field_id,");
         fieldsHeader.append("field_name,");
         fieldsHeader.append("is_nullable,");
         fieldsHeader.append("is_repeated,");
@@ -208,6 +210,34 @@ public static Object getDefaultValue(Schema.Field field){
             }
         }
         return "";
+    }
+
+
+    public static StringBuilder createTransformMappingHeader() {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("transform_id,");
+        builder.append("map_id,");
+        builder.append("to_field_id,");
+        builder.append("map_type,");
+        builder.append("expression,");
+        builder.append("data_type,");
+        builder.append("sequence_no,");
+        builder.append("args,");
+        builder.append("\n");
+
+        return builder;
+    }
+
+
+    public static StringBuilder createTransformObjectMappingHeader() {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("from_entity_id,");
+        builder.append("to_entity_id,");
+        builder.append("\n");
+
+        return builder;
     }
 
 }
