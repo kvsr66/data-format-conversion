@@ -11,6 +11,9 @@ import java.util.List;
 
 public class AvroToCsvConverterNew {
 
+   private static int ENTITY_ID = 1000;
+   private static int MAPPING_ID = 10000;
+   private static int SEQUENCE_ID = 0;
 
     public static void main(String[] args) throws IOException {
         String schemaDir = "\\src\\main\\resources\\avro\\";
@@ -21,6 +24,7 @@ public class AvroToCsvConverterNew {
     }
 
     public  void convertAvroSchemaToMetaDataCSV(String avroFilePath, String strSchema) throws IOException {
+
         String basePath = "\\src\\main\\resources\\avro\\";
 
         String entitySchemaFile = basePath + "Entity.csv";
@@ -39,25 +43,67 @@ public class AvroToCsvConverterNew {
 
     }
 
-    public void processMetaData(Schema avroSchema, Schema.Field field, StringBuilder entityBuilder, StringBuilder fieldBuilder, int entityId, int fieldId, int mappingId , int sequenceNum,
-                                StringBuilder transformMappingBuilder, StringBuilder mapperObjectBuilder ) {
+    public void processMetaData(Schema avroSchema, StringBuilder entityBuilder, StringBuilder fieldBuilder, StringBuilder transformMappingBuilder, StringBuilder mapperObjectBuilder ) {
 
-        if (null != avroSchema) {
-            entityBuilder.append(buildEntityMetaData(avroSchema, null, ++entityId, transformMappingBuilder, mapperObjectBuilder));
+          if (null != avroSchema) {
 
-            List<Schema.Field> fields = avroSchema.getFields();
+              ++ENTITY_ID;
+              int entityId = ENTITY_ID;
+            entityBuilder.append(buildEntityMetaData(avroSchema, null, entityId ));
 
-            if (CollectionUtils.isNotEmpty(fields)) {
-                for (Schema.Field locaField : fields) {
-                    fieldBuilder.append(buildFieldsMetaData(null, locaField, entityId, ++fieldId, transformMappingBuilder, mapperObjectBuilder));
-                    transformMappingBuilder.append(buildTransformMapper(avroSchema, locaField, entityId, fieldId, ++mappingId,  ++sequenceNum, transformMappingBuilder, mapperObjectBuilder));
+            processFields(avroSchema, entityBuilder,fieldBuilder, entityId,transformMappingBuilder,mapperObjectBuilder);
 
-                    if (Schema.Type.RECORD == locaField.schema().getType()) {
-                        processMetaData(locaField.schema(), null, entityBuilder, fieldBuilder, entityId, fieldId, mappingId, sequenceNum, transformMappingBuilder, mapperObjectBuilder);
-                    }
+//            List<Schema.Field> fields = avroSchema.getFields();
+//
+//            if (CollectionUtils.isNotEmpty(fields)) {
+//                int localEntityId = entityId;
+//
+//                for (Schema.Field locaField : fields) {
+//                    int localFieldId = fieldId+1;
+//                    fieldBuilder.append(buildFieldsMetaData(null, locaField, localEntityId, localFieldId, transformMappingBuilder, mapperObjectBuilder));
+//                    transformMappingBuilder.append(buildTransformMapper(avroSchema, locaField, localEntityId, localFieldId, ++mappingId,  ++sequenceNum, transformMappingBuilder, mapperObjectBuilder));
+//
+//                    if (Schema.Type.RECORD == locaField.schema().getType()) {
+//                        localEntityId = ++entityId;
+//                        processMetaData(locaField.schema(), null, entityBuilder, fieldBuilder, localEntityId, localFieldId, mappingId, sequenceNum, transformMappingBuilder, mapperObjectBuilder);
+//                    }
+//                }
+//            }
+            ++entityId;
+        }
+    }
+
+    public StringBuilder processFields(Schema avroSchema, StringBuilder entityBuilder, StringBuilder fieldBuilder, int entityId, StringBuilder transformMappingBuilder, StringBuilder mapperObjectBuilder ){
+
+        List<Schema.Field> fields = avroSchema.getFields();
+
+        if (CollectionUtils.isNotEmpty(fields)) {
+            int fieldId = 0;
+            for (Schema.Field locaField : fields) {
+                ++fieldId;
+                fieldBuilder.append(buildFieldsMetaData(null, locaField, entityId, fieldId, transformMappingBuilder, mapperObjectBuilder));
+                transformMappingBuilder.append(buildTransformMapper(avroSchema, locaField, entityId, fieldId, ++MAPPING_ID,  ++SEQUENCE_ID, transformMappingBuilder, mapperObjectBuilder));
+
+                if (Schema.Type.RECORD == locaField.schema().getType()) {
+                    processEntities(locaField.schema(), entityBuilder, fieldBuilder, transformMappingBuilder, mapperObjectBuilder);
                 }
             }
         }
+
+        return fieldBuilder;
+    }
+
+    public StringBuilder processEntities(Schema fieldSchema, StringBuilder entityBuilder, StringBuilder fieldBuilder, StringBuilder transformMappingBuilder, StringBuilder mapperObjectBuilder ){
+        if (null != fieldSchema) {
+            ++ENTITY_ID;
+            int entityId = ENTITY_ID;
+            entityBuilder.append(buildEntityMetaData(fieldSchema, null, entityId));
+
+            if(CollectionUtils.isNotEmpty(fieldSchema.getFields())){
+                processFields(fieldSchema, entityBuilder,fieldBuilder, entityId, transformMappingBuilder, mapperObjectBuilder);
+            }
+        }
+      return entityBuilder;
     }
 
     public void generateMetadata(Schema avroSchema, String entityFilePath, String fieldsFilePath, String transformMappingfilePath, String mappingObjectFilePath) throws IOException {
@@ -68,7 +114,7 @@ public class AvroToCsvConverterNew {
         StringBuilder transformObjectBuilder = createTransformObjectMappingHeader();
 
 
-        processMetaData(avroSchema, null, entityBuilder, fieldBuilder, 1000, 0, 10000, 1, transformMappingBuilder, transformObjectBuilder );
+        processMetaData(avroSchema, entityBuilder, fieldBuilder, transformMappingBuilder, transformObjectBuilder );
 
         writeToFile(entityBuilder.toString(), entityFilePath);
 
@@ -83,7 +129,7 @@ public class AvroToCsvConverterNew {
 
     }
 
-    public StringBuilder buildEntityMetaData(Schema schema, Schema.Field field, Integer entityId, StringBuilder mapperBuilder, StringBuilder mapperObjectBuilder) {
+    public StringBuilder buildEntityMetaData(Schema schema, Schema.Field field, Integer entityId) {
 
         StringBuilder entityDataBuilder = new StringBuilder();
         if (null != schema) {
@@ -243,7 +289,7 @@ public static Object getDefaultValue(Schema.Field field){
 
         return builder;
     }
-    public StringBuilder buildTransformMapper(Schema schema, Schema.Field field, int entityId, int fieldId, int sequenceNum , int mapId, StringBuilder mapperBuilder, StringBuilder mapperObjectBuilder) {
+    public StringBuilder buildTransformMapper(Schema schema, Schema.Field field, int entityId, int fieldId,  int mapId, int sequenceNum , StringBuilder mapperBuilder, StringBuilder mapperObjectBuilder) {
 
         StringBuilder transformMappingBuilder = new StringBuilder();
         transformMappingBuilder.append(entityId).append(","); // transform_id
