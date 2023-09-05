@@ -19,7 +19,7 @@ public class YamlReader {
 //      Map<String, Object>  map = yamlReader.getJsonObjectMapFromYaml("");
 //      yamlReader.getComplexFields(map);
 
-        String path = "D:\\subbu\\workspaces\\intellij-workspace\\data-format-conversion\\src\\main\\resources\\yaml\\";
+        String path = "src\\main\\resources\\yaml\\";
         Map<String, Object>  map1 = yamlReader.getJsonObjectMapFromYaml(path, "security.yaml");
         yamlReader.getComplexFields(map1);
 
