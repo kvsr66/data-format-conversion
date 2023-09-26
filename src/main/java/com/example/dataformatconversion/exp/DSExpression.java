@@ -24,7 +24,7 @@ public class DSExpression {
     }
 
     public String evaluate(Map h , boolean logdebugMsg ){
-        return  "";
+        return  h.toString();
     }
 
 }

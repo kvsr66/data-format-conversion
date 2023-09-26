@@ -6,6 +6,16 @@ public class TransformedTransaction {
     Object field2;
     Object field3;
 
+    String entityName;
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
+    }
+
     public Object getField1() {
         return field1;
     }
