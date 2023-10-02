@@ -36,13 +36,6 @@ public class MetadataExpressionService {
 
         Map<String, EntityMapping> entityMappingMap = new TransformedMappingRepository().getEntityMappingsMap();
 
-//        List<Object> listTxns = new ArrayList<>();
-//        TransformedTransaction txn1 = new TransformedTransaction();
-//        txn1.setField1("field1");
-//        txn1.setField2("field2");
-//        txn1.setField3("field3");
-//        listTxns.add(txn1);
-
         for (Object txn : entityObjList) {
 
             Map<String, Object> fieldsValuesMap = getFieldMapFromTransformTxn(txn);
@@ -88,7 +81,7 @@ public class MetadataExpressionService {
 
         if (null != transactionObj) {
 
-            java.lang.reflect.Field[] fields = TransformedTransaction.class.getDeclaredFields();
+            java.lang.reflect.Field[] fields = transactionObj.getClass().getFields();
 
             Map<String, Object> fieldsMap = Arrays.stream(fields).collect(Collectors.toMap(java.lang.reflect.Field::getName, Field::getType));
 
@@ -97,7 +90,7 @@ public class MetadataExpressionService {
                 for (Map.Entry<String, Object> entry : fieldsMap.entrySet()) {
 
                     String fieldName = entry.getKey();
-                    PropertyDescriptor pd = new PropertyDescriptor(fieldName, TransformedTransaction.class);
+                    PropertyDescriptor pd = new PropertyDescriptor(fieldName, transactionObj.getClass());
                     Method getter = pd.getReadMethod();
                     Object f = getter.invoke(transactionObj);
                     fieldsAndValuesMap.put(fieldName, f);
